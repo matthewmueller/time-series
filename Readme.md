@@ -12,23 +12,22 @@
 ## Example
 
 ```js
-var graph = document.getElementById('graph');
+var graph = document.getElementById('graph')
 var series = Series(graph).scale('60s')
-var line = series.line();
+var line = series.line()
 
 line.color('#00BEFF')
-    .strokeWidth(3);
 
 setInterval(function() {
-  line.add(rand());
-}, 500);
+  line.add(rand())
+}, 500)
 
-var line2 = series.line();
-line2.color('#CF3E2A').strokeWidth(3);
+var line2 = series.line()
+line2.color('#CF3E2A')
 
 setInterval(function() {
-  line2.add(rand());
-}, 1000);
+  line2.add(rand())
+}, 1000)
 
 function rand() {
   return Math.random() * 100 | 0
