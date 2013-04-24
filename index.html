@@ -1,1 +1,50 @@
-My Page
+<html>
+<head>
+  <title>time-series component</title>
+  <style>
+    #graph {
+      border: 1px solid #eee;
+      height: 100px;
+    }
+  </style>
+</head>
+<body>
+  <h1>time-series component</h1>
+
+  <div id="graph"></div>
+
+  <script src="../build/build.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    var Series = require('time-series');
+
+    var series = Series(graph).scale('60s')
+    var line = series.line();
+
+    line.color('#00BEFF')
+        .strokeWidth(3);
+
+    setInterval(function() {
+      line.add(rand());
+    }, 500);
+
+    var line2 = series.line();
+    line2.color('#CF3E2A').strokeWidth(3);
+
+    setInterval(function() {
+      line2.add(rand());
+    }, 1000);
+
+    var line3 = series.line();
+    line3.color('#89B700').strokeWidth(3);
+
+    setInterval(function() {
+      line3.add(rand());
+    }, 1500);
+
+    function rand() {
+      return Math.random() * 100 | 0
+    }
+
+  </script>
+</body>
+</html>
