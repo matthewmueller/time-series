@@ -139,13 +139,13 @@ Line.prototype.add = function(y, time) {
 
   var elapsed = time - this.start;
   var x = elapsed * series._scale | 0;
-  var path = type + x + ',' + y;
-  var d = this.path.attr('d');
+  var point = type + x + ',' + y;
+  var d = path.attr('d');
 
   if (x > series.width) {
     var offset = -(x - series.width);
-    this.path.attr('transform', 'translate(' + offset + ', 0)');
+    path.transform({ x : offset });
   }
 
-  this.path.attr('d', d + path);
+  path.attr('d', d + point);
 };
