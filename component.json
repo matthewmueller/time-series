@@ -1,0 +1,21 @@
+{
+  "name": "time-series",
+  "repo": "matthewmueller/time-series",
+  "description": "simple time series graphs",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {
+    "component/domify" : "*",
+    "guille/ms.js" : "*",
+    "matthewmueller/svg-element" : "*"
+  },
+  "development": {},
+  "license": "MIT",
+  "scripts": [
+    "index.js",
+    "template.js"
+  ],
+  "styles": [
+    "time-series.css"
+  ]
+}
