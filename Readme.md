@@ -14,8 +14,8 @@
 ```js
 var graph = document.getElementById('graph')
 var series = Series(graph).scale('60s')
-var line = series.line()
 
+var line = series.line()
 line.color('#00BEFF')
 
 setInterval(function() {
