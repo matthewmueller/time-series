@@ -3,7 +3,7 @@
  */
 
 var domify = require('domify'),
-    element = require('svg-element'),
+    svg = require('svg'),
     ms = require('ms'),
     html = domify(require('./template'))[0];
 
@@ -37,13 +37,11 @@ module.exports = TimeSeries;
 
 function TimeSeries(parent, data) {
   if (!(this instanceof TimeSeries)) return new TimeSeries(parent, data);
-  this.el = html.cloneNode(true);
-
-  parent.appendChild(this.el);
+  this.element = svg(parent);
 
   // dimensions
-  this.width = this.el.clientWidth;
-  this.height = this.el.clientHeight;
+  this.width = parent.clientWidth;
+  this.height = parent.clientHeight;
 }
 
 /**
@@ -84,8 +82,7 @@ function Line(opts, series) {
   if(!(this instanceof Line)) return new Line(opts, series);
   this.opts = opts || {};
   this.series = series;
-  this.path = element('path').attr(defaults);
-  this.series.el.appendChild(this.path.el);
+  this.path = series.element('path').attr(defaults);
 };
 
 /**

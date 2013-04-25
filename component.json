@@ -7,7 +7,7 @@
   "dependencies": {
     "component/domify" : "*",
     "guille/ms.js" : "*",
-    "matthewmueller/svg-element" : "*"
+    "matthewmueller/svg" : "*"
   },
   "development": {},
   "license": "MIT",
