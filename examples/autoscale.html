@@ -1,0 +1,40 @@
+<html>
+<head>
+  <title>time-series component</title>
+  <style>
+    #graph {
+      border: 1px solid #eee;
+      height: 100px;
+    }
+  </style>
+</head>
+<body>
+  <h1>time-series component</h1>
+  <input id="point" type="text" placeholder="point">
+  <button id="add">Add point</button>
+  <div id="graph"></div>
+
+  <script src="../build/build.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    var Series = require('time-series');
+    var series = Series(graph).scale('3s');
+    var line = series.line();
+
+    var points = [10, 100, 110, 0, -10, -30, 500];
+
+    var id = setInterval(function addpoint() {
+      var point = points.shift();
+      if(point === undefined) return clearInterval(id);
+      console.log('adding point', point);
+      line.add(point);
+    }, 500);
+
+    add.onclick = function() {
+      var val = point.value;
+      if(!val) return
+      line.add(val);
+    };
+
+  </script>
+</body>
+</html>

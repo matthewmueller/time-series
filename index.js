@@ -14,7 +14,6 @@ var domify = require('domify'),
 var defaults = {
   fill : 'none',
   stroke : 'black',
-  d : 'M0,0',
   'stroke-width' : 2,
   'stroke-linecap' : 'round',
   'stroke-linejoin' : 'round'
@@ -42,6 +41,14 @@ function TimeSeries(parent, data) {
   // dimensions
   this.width = parent.clientWidth;
   this.height = parent.clientHeight;
+
+  // set autoscaling to true by default
+  this._autoscale = true;
+
+  // set the default min & max
+  this.min = 0;
+  this.max = this.height;
+  this.ratio = 1/1;
 }
 
 /**
@@ -70,6 +77,45 @@ TimeSeries.prototype.line = function(opts) {
 };
 
 /**
+ * Enable or disable autoscaling
+ *
+ * @param {Boolean} autoscale
+ * @return {TimeSeries}
+ * @api public
+ */
+
+TimeSeries.prototype.autoscale = function(autoscale) {
+  this._autoscale = autoscale;
+  return this;
+};
+
+/**
+ * Rescale the y-axis
+ *
+ * @param {Array} points
+ * @param {Mixed} y
+ * @return {Array} points
+ * @api private
+ */
+
+TimeSeries.prototype.rescale = function(points, y) {
+  if(!this._autoscale) return points;
+  this.max = (y > this.max) ? y : this.max;
+  this.min = (y < this.min) ? y : this.min;
+  var out = [];
+  var range = this.max - this.min;
+  var scale = this.height / range;
+
+  for (var i = 0, len = points.length; i < len; i++) {
+    out[i] = [];
+    out[i][0] = points[i][0];
+    out[i][1] = (points[i][1] - this.min) * scale | 0;
+  };
+
+  return out;
+};
+
+/**
  * Initialize a `Line`
  *
  * @param {Object} opts
@@ -82,6 +128,7 @@ function Line(opts, series) {
   if(!(this instanceof Line)) return new Line(opts, series);
   this.opts = opts || {};
   this.series = series;
+  this.points = [];
   this.path = series.element('path').attr(defaults);
 };
 
@@ -125,24 +172,76 @@ Line.prototype.strokeWidth = function(w) {
 Line.prototype.add = function(y, time) {
   if (!y) return this;
   time = time || new Date;
-  var type = 'L';
   var path = this.path;
   var series = this.series;
 
-  if (!this.start) {
-    this.start = time;
-    type = 'M';
-  }
-
+  if (!this.start) this.start = time;
   var elapsed = time - this.start;
   var x = elapsed * series._scale | 0;
-  var point = type + x + ',' + y;
-  var d = path.attr('d');
 
-  if (x > series.width) {
-    var offset = -(x - series.width);
-    path.transform({ x : offset });
-  }
+  // rescale and shift the line if needed
+  this.points.push([x, y]);
+  var points = this.points;
+  points = series.rescale(points, y);
+  points = this.shift(points, x);
 
-  path.attr('d', d + point);
+  var d = points_to_svg(points);
+  path.attr('d', d);
 };
+
+/**
+ * Shift the points on the x axis
+ *
+ * @param {Array} points
+ * @return {Array} points
+ * @api private
+ */
+
+Line.prototype.shift = function(points, x) {
+  if (x <= this.series.width) return points;
+  var out = [];
+  var prev = [];
+  var offset = x - this.series.width;
+
+  for (var i = 0, len = points.length; i < len; i++) {
+    var py = points[i][1];
+    var px = points[i][0];
+    var ox = px - offset;
+    if (ox >= 0) {
+      // Push the first previous negative point to complete graph
+      if (!out.length) out.push(prev);
+      out.push([ ox, py ]);
+    }
+    prev = [ ox, py ]
+  };
+
+  return out;
+}
+
+/**
+ * Points to SVG
+ *
+ * `points` takes the following form:
+ *
+ *   [ [x0, y0], [x1, y1], ... ]
+ *
+ * @param {Array} points
+ * @return {String} svg path
+ */
+
+function points_to_svg(points) {
+  if (!points || !points.length) return '';
+
+  var path = [],
+      str = 'M',
+      p;
+
+  for (var i = 0, len = points.length; i < len; i++) {
+    p = points[i];
+    if(!p) continue;
+    path[path.length] = str + p[0] + ',' + p[1];
+    str = 'L';
+  };
+
+  return path.join('');
+}
